@@ -40,9 +40,9 @@ class ExpenseRead(BaseModel):
     """DTO for reading a single expense."""
     id: UUID
     amount: condecimal(gt=0, max_digits=12, decimal_places=2)
-    description: constr(max_length=100)
+    description: Optional[constr(max_length=100)] = None
     category_id: UUID
-    date_of_expense: date
+    date_of_expense: datetime
     created_at: datetime
 
 
@@ -95,6 +95,8 @@ class LogRead(BaseModel):
     """DTO for reading internal log entries."""
     id: UUID
     user_id: UUID
+    expense_id: Optional[UUID] = None
+    category_id: Optional[UUID] = None
     type: LogType
     error_code: Optional[constr(max_length=50)] = None
     message: constr(max_length=500)

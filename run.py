@@ -1,23 +1,17 @@
-from flask import Flask, g, render_template
-from src.db.supabase_client import supabase
-from config import Config
+#!/usr/bin/env python
+import os
+from dotenv import load_dotenv
+from app import create_app
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(Config)
+# Load environment variables from .env file
+load_dotenv()
 
-    @app.before_request
-    def attach_supabase():
-        # dodaj obiekt supabase do globalnego obiektu g
-        g.supabase = supabase
-
-    @app.route("/")
-    def index():
-        # przykładowe zapytanie
-        data = g.supabase.table("profiles").select("*").execute()
-        return render_template("index.html", profiles=data.data)
-
-    return app
+# Create and configure the Flask application
+app = create_app()
 
 if __name__ == "__main__":
-    create_app().run(debug=True)
+    # Get port from environment variable or default to 5000
+    port = int(os.environ.get("PORT", 5000))
+    
+    # Run the Flask application in development mode
+    app.run(host="0.0.0.0", port=port, debug=True)
