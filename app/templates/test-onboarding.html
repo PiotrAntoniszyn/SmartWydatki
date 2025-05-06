@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Onboarding</title>
+  <!-- Vuetify CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.css" rel="stylesheet">
+  <!-- Material Design Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" v-cloak>
+    <!-- Dialog będzie renderowany tutaj -->
+  </div>
+
+  <!-- Vue 3 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.js"></script>
+  <!-- Vuetify -->
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.js"></script>
+  
+  <script>
+    // Symulacja komponentów
+    const LoadingSpinner = {
+      template: `
+        <div class="loading-spinner" role="status" aria-live="polite" aria-label="Ładowanie danych">
+          <v-progress-circular indeterminate color="primary" size="64" width="6"></v-progress-circular>
+          <span class="loading-text">Ładowanie...</span>
+        </div>
+      `,
+      style: `
+        .loading-spinner {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          margin: 2rem 0;
+          gap: 1rem;
+        }
+        .loading-text {
+          margin-top: 1rem;
+          font-size: 1rem;
+          color: rgba(0, 0, 0, 0.6);
+        }
+      `
+    };
+
+    const ErrorDialog = {
+      props: ['message'],
+      template: `
+        <v-dialog v-model="show" persistent max-width="400" role="alertdialog" aria-modal="true" aria-labelledby="error-dialog-title">
+          <v-card>
+            <v-card-title id="error-dialog-title" class="text-h5 text-center pa-4">
+              <v-icon color="error" size="large" class="mr-2">mdi-alert-circle</v-icon>
+              Błąd
+            </v-card-title>
+            <v-card-text class="text-center pa-4">
+              {{ message }}
+            </v-card-text>
+            <v-card-actions class="justify-center pa-4">
+              <v-btn color="primary" variant="elevated" @click="$emit('retry')" aria-label="Spróbuj ponownie">
+                Spróbuj ponownie
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      `,
+      computed: {
+        show() {
+          return !!this.message;
+        }
+      },
+      emits: ['retry']
+    };
+
+    const CategoriesSuggestionsList = {
+      props: ['items', 'modelValue'],
+      template: `
+        <div class="categories-suggestions-list">
+          <h2 class="text-h5 mb-4">Wybierz od 1 do 5 kategorii, aby rozpocząć</h2>
+          <p class="text-subtitle-1 mb-6">
+            Te kategorie pomogą nam lepiej dopasować sugestie do Twoich potrzeb.
+            Możesz je później zmienić w ustawieniach.
+          </p>
+          <div class="selection-count mb-4" :class="{ 'error-text': isInvalid }">
+            Wybrano: {{ modelValue.length }}/5
+            <span v-if="isInvalid" class="error-message">
+              (wybierz przynajmniej 1 kategorię)
+            </span>
+          </div>
+          <v-chip-group
+            v-model="selectedModel"
+            multiple
+            column
+            class="categories-chips"
+            :max="5"
+            selected-class="selected-chip"
+          >
+            <v-chip
+              v-for="item in items"
+              :key="item.id"
+              :value="item.id"
+              filter
+              variant="elevated"
+              class="category-chip ma-2"
+              :aria-label="'Kategoria ' + item.name + ', wybrana ' + (isSelected(item.id) ? 'tak' : 'nie')"
+            >
+              {{ item.name }}
+              <span class="usage-count">{{ formatUsageCount(item.usageCount) }}</span>
+            </v-chip>
+          </v-chip-group>
+          <div v-if="modelValue.length >= 5" class="text-caption text-center mt-4">
+            Osiągnięto maksymalną liczbę wyborów (5). Odznacz niektóre, aby wybrać inne.
+          </div>
+        </div>
+      `,
+      computed: {
+        selectedModel: {
+          get() {
+            return this.modelValue;
+          },
+          set(newValue) {
+            this.$emit('update:modelValue', newValue);
+          }
+        },
+        isInvalid() {
+          return this.modelValue.length === 0;
+        }
+      },
+      methods: {
+        isSelected(id) {
+          return this.modelValue.includes(id);
+        },
+        formatUsageCount(count) {
+          if (count === 0) return '';
+          return `(${count})`;
+        }
+      },
+      emits: ['update:modelValue']
+    };
+
+    // Główna aplikacja
+    const app = Vue.createApp({
+      components: {
+        LoadingSpinner,
+        ErrorDialog,
+        CategoriesSuggestionsList
+      },
+      template: `
+        <v-dialog v-model="dialog" persistent fullscreen no-click-animation :retain-focus="false" :scrim="false" transition="fade-transition" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+          <v-card class="d-flex flex-column" style="min-height: 100vh;">
+            <v-card-title id="onboarding-title" class="text-h4 text-center pa-6">
+              Witaj w aplikacji!
+            </v-card-title>
+            
+            <v-card-text class="flex-grow-1 d-flex flex-column align-center justify-center">
+              <!-- Loading state -->
+              <LoadingSpinner v-if="loading" />
+              
+              <!-- Error state -->
+              <ErrorDialog 
+                :message="errorMessage"
+                @retry="fetchSuggestions"
+              />
+              
+              <!-- Content -->
+              <div v-if="!loading && !errorMessage" class="onboarding-content">
+                <CategoriesSuggestionsList
+                  :items="suggestions"
+                  v-model="selectedIds"
+                />
+              </div>
+            </v-card-text>
+            
+            <v-card-actions class="justify-center pa-6">
+              <v-btn
+                color="primary"
+                size="large"
+                min-width="200"
+                :disabled="!canContinue"
+                @click="handleContinue"
+                aria-label="Kontynuuj do aplikacji"
+              >
+                Kontynuuj
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      `,
+      data() {
+        return {
+          dialog: true,
+          suggestions: [],
+          loading: true,
+          errorMessage: null,
+          selectedIds: [],
+          mockError: false // Przełącznik do testowania błędów
+        };
+      },
+      computed: {
+        canContinue() {
+          const count = this.selectedIds.length;
+          return count >= 1 && count <= 5;
+        }
+      },
+      methods: {
+        async fetchSuggestions() {
+          this.loading = true;
+          this.errorMessage = null;
+          
+          // Symulacja opóźnienia API
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          if (this.mockError) {
+            this.errorMessage = 'Usługa niedostępna, spróbuj ponownie później.';
+            this.loading = false;
+            return;
+          }
+          
+          // Przykładowe dane
+          this.suggestions = [
+            { id: '1', name: 'Jedzenie', usageCount: 120 },
+            { id: '2', name: 'Transport', usageCount: 85 },
+            { id: '3', name: 'Rozrywka', usageCount: 65 },
+            { id: '4', name: 'Zakupy', usageCount: 45 },
+            { id: '5', name: 'Dom', usageCount: 30 },
+            { id: '6', name: 'Zdrowie', usageCount: 20 },
+            { id: '7', name: 'Edukacja', usageCount: 15 },
+            { id: '8', name: 'Podróże', usageCount: 10 }
+          ];
+          
+          this.loading = false;
+        },
+        toggleError() {
+          this.mockError = !this.mockError;
+          this.fetchSuggestions();
+        },
+        handleContinue() {
+          alert('Wybrano kategorie: ' + this.selectedIds.map(id => 
+            this.suggestions.find(s => s.id === id).name
+          ).join(', '));
+        }
+      },
+      mounted() {
+        this.fetchSuggestions();
+      }
+    });
+
+    // Konfiguracja Vuetify
+    const vuetify = Vuetify.createVuetify({
+      theme: {
+        defaultTheme: 'light',
+        themes: {
+          light: {
+            colors: {
+              primary: '#1976D2',
+              error: '#FF5252',
+            },
+          },
+        },
+      },
+    });
+
+    app.use(vuetify);
+    app.mount('#app');
+  </script>
+
+  <!-- Testowe przyciski (poza Vue) do kontrolowania stanu -->
+  <div style="position: fixed; bottom: 20px; left: 20px; z-index: 9999;">
+    <button onclick="app._instance.proxy.toggleError()" style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      Przełącz błąd
+    </button>
+  </div>
+</body>
+</html> 

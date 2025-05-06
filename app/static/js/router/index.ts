@@ -1,0 +1,80 @@
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+
+// Routes configuration
+const routes: Array<RouteRecordRaw> = [
+  {
+    path: '/',
+    redirect: '/dashboard'
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('../views/LoginView.vue')
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('../views/RegisterView.vue')
+  },
+  {
+    path: '/onboarding',
+    name: 'Onboarding',
+    component: () => import('../views/OnboardingView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Onboarding - Wybierz kategorie'
+    }
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: () => import('../views/DashboardView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Dashboard'
+    }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('../views/NotFoundView.vue')
+  }
+];
+
+// Router instance
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { top: 0 };
+    }
+  }
+});
+
+// Global navigation guard for auth
+router.beforeEach((to, from, next) => {
+  // Update document title
+  document.title = to.meta.title as string || 'Aplikacja budżetowa';
+  
+  // Check if route requires authentication
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // Check if user is authenticated
+    const isAuthenticated = !!localStorage.getItem('auth_token');
+    
+    if (!isAuthenticated) {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      });
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+});
+
+export default router; 
