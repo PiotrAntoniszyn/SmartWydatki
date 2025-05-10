@@ -35,6 +35,24 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: '/categories',
+    name: 'Categories',
+    component: () => import('../views/CategoriesView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Kategorie'
+    }
+  },
+  {
+    path: '/expenses',
+    name: 'Expenses',
+    component: () => import('../views/ExpensesView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Wydatki - Lista'
+    }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../views/NotFoundView.vue')

@@ -1,51 +1,73 @@
 <template>
-  <v-dialog
-    v-model="show"
-    persistent
-    max-width="400"
-    role="alertdialog"
-    aria-modal="true"
-    aria-labelledby="error-dialog-title"
-  >
-    <v-card>
-      <v-card-title id="error-dialog-title" class="text-h5 text-center pa-4">
-        <v-icon color="error" size="large" class="mr-2">mdi-alert-circle</v-icon>
-        Błąd
-      </v-card-title>
-
-      <v-card-text class="text-center pa-4">
-        {{ message }}
-      </v-card-text>
-
-      <v-card-actions class="justify-center pa-4">
-        <v-btn
-          color="primary"
-          variant="elevated"
-          @click="$emit('retry')"
-          aria-label="Spróbuj ponownie"
-        >
-          Spróbuj ponownie
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+  <div class="modal fade" ref="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="errorModalLabel">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Wystąpił błąd
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+        </div>
+        <div class="modal-body">
+          <p>{{ errorMessage }}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+          <button 
+            type="button" 
+            class="btn btn-primary"
+            @click="handleRetry"
+          >
+            <i class="bi bi-arrow-clockwise me-1"></i> Spróbuj ponownie
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, onMounted } from 'vue';
+// Import type only to avoid linter errors
+import type { Modal as BootstrapModal } from 'bootstrap';
 
-const props = defineProps<{
-  message: string | null;
-}>();
+const errorModal = ref<HTMLElement | null>(null);
+const errorMessage = ref<string>('Wystąpił błąd podczas ładowania danych.');
+let modal: BootstrapModal | null = null;
 
 const emit = defineEmits<{
-  retry: [];
+  (e: 'retry'): void
 }>();
 
-// Dialog is only shown when there's an error message
-const show = computed(() => !!props.message);
+onMounted(() => {
+  if (errorModal.value) {
+    // Use the global Bootstrap object to create a modal
+    // This avoids having to import the entire Bootstrap library
+    if (window.bootstrap) {
+      modal = new window.bootstrap.Modal(errorModal.value);
+    }
+  }
+});
+
+// Handle retry button click
+const handleRetry = () => {
+  modal?.hide();
+  emit('retry');
+};
+
+// Public method to open the modal with a custom message
+const open = (message: string) => {
+  errorMessage.value = message || 'Wystąpił błąd podczas ładowania danych.';
+  modal?.show();
+};
+
+// Expose methods to parent component
+defineExpose({
+  open
+});
 </script>
 
 <style scoped>
-/* No additional styling needed - using Vuetify's built-in styles */
+/* No additional styling needed - using Bootstrap's built-in styles */
 </style> 

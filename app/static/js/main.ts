@@ -3,6 +3,11 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import 'vuetify/styles';
+// Import Bootstrap
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+// Import Bootstrap icons
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import App from './App.vue';
 import router from './router';
 

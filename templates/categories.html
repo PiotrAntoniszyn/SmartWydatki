@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}Zarządzanie kategoriami{% endblock %}
+
+{% block content %}
+<div class="container mt-4" id="categories-page" data-page-role="categories-page">
+  <h1 id="categories-heading" tabindex="-1">Zarządzanie kategoriami</h1>
+
+  <!-- Action toolbar -->
+  <div class="d-flex justify-content-end mb-3">
+    <button id="add-category-btn" type="button" class="btn btn-primary" aria-label="Dodaj kategorię">
+      <i class="bi bi-plus-lg" aria-hidden="true"></i>
+      <span class="ms-1">Dodaj kategorię</span>
+    </button>
+  </div>
+
+  <!-- Loading spinner -->
+  <div id="categories-loading" class="text-center my-5" role="status" aria-hidden="false">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Ładowanie kategorii...</span>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  <div id="categories-error" class="alert alert-danger d-none" role="alert" aria-hidden="true">
+    <p>Wystąpił błąd podczas ładowania kategorii.</p>
+    <button id="categories-retry-btn" type="button" class="btn btn-link p-0" aria-label="Spróbuj ponownie">Spróbuj ponownie</button>
+  </div>
+
+  <!-- Empty state -->
+  <div id="categories-empty" class="alert alert-info d-none" role="alert" aria-hidden="true">
+    <p>Lista kategorii jest pusta.</p>
+    <button id="categories-add-empty-btn" type="button" class="btn btn-primary" aria-label="Dodaj kategorię (pusta lista)">Dodaj kategorię</button>
+  </div>
+
+  <!-- Categories list -->
+  <div id="categories-list-wrapper" class="d-none" aria-hidden="true">
+    <table class="table table-hover align-middle" aria-label="Lista kategorii">
+      <thead>
+        <tr>
+          <th scope="col">Nazwa</th>
+          <th scope="col" class="text-center">Domyślna</th>
+          <th scope="col" class="text-end">Akcje</th>
+        </tr>
+      </thead>
+      <tbody id="categories-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Portals for dynamically injected modals -->
+<div id="modal-portal-root"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/categories.js') }}"></script>
+{% endblock %} 

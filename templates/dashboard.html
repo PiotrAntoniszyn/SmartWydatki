@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1 id="dashboard-heading" tabindex="-1">Dashboard</h1>
+  
+  <!-- 
+    WeeklySummaryCard
+    QA: Sprawdź czy:
+    - Liczby są poprawnie sformatowane (separator tysięcy, 2 miejsca po przecinku)
+    - Spinner znika po załadowaniu danych
+    - Wygląd przy zerowych danych ("Brak danych za ten tydzień")
+    - Obsługa błędów działa poprawnie
+  -->
+  <section aria-labelledby="summary-heading" class="mb-4">
+    <div id="weekly-summary" class="card p-3" aria-live="polite">
+      <h2 id="summary-heading" class="h5">Podsumowanie tygodniowe</h2>
+      
+      <div class="spinner-border" id="summary-spinner" role="status" aria-hidden="false">
+        <span class="visually-hidden">Ładowanie podsumowania wydatków...</span>
+      </div>
+      
+      <div id="summary-content" class="d-none" aria-hidden="true">
+        <p>Łączna kwota: <span id="total-amount"></span> PLN</p>
+        <p>Liczba transakcji: <span id="transaction-count"></span></p>
+      </div>
+      
+      <div id="summary-error" class="alert alert-danger d-none" aria-hidden="true">
+        <p>Błąd ładowania podsumowania.</p>
+        <button id="summary-retry" class="btn btn-link" aria-label="Spróbuj ponownie załadować podsumowanie">Spróbuj ponownie</button>
+      </div>
+    </div>
+  </section>
+  
+  <!-- 
+    AiTipsPanel
+    QA: Sprawdź czy:
+    - Panel wyświetla maksymalnie 3 porady
+    - Porady są czytelne i mają odpowiedni odstęp
+    - Spinner znika po załadowaniu danych
+    - Obsługa błędów działa poprawnie
+  -->
+  <section aria-labelledby="tips-heading" class="mb-4">
+    <div id="ai-tips-panel" class="card p-3" aria-live="polite">
+      <h2 id="tips-heading" class="h5">Porady finansowe</h2>
+      
+      <div class="spinner-border" id="tips-spinner" role="status" aria-hidden="false">
+        <span class="visually-hidden">Ładowanie porad finansowych...</span>
+      </div>
+      
+      <div id="tips-content" class="d-none" aria-hidden="true">
+        <ul id="tips-list" class="list-group list-group-flush" aria-label="Lista porad finansowych"></ul>
+      </div>
+      
+      <div id="tips-error" class="alert alert-danger d-none" aria-hidden="true">
+        <p>Błąd ładowania porad AI.</p>
+        <button id="tips-retry" class="btn btn-link" aria-label="Spróbuj ponownie załadować porady">Spróbuj ponownie</button>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- 
+  QA: Testowanie JS:
+  1. Otwórz dashboard?test=true dla trybu testowego
+  2. Użyj konsoli i window.dashboardTest do symulacji różnych stanów
+  3. Sprawdź dostępność używając narzędzi screen readera
+-->
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %} 

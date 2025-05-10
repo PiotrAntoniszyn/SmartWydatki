@@ -147,3 +147,84 @@ Distributed under the **MIT License**. See [LICENSE](./LICENSE) for more informa
 ---
 
 *Built with ❤️ by the SmartWydatki team* 
+
+# Dashboard - widok podsumowania finansów
+
+Widok Dashboard to główny ekran aplikacji finansowej, który dostarcza użytkownikowi szybki przegląd stanu finansów w formie tygodniowego podsumowania wydatków oraz spersonalizowanych porad AI.
+
+## Zawartość widoku
+
+- **Tygodniowe podsumowanie wydatków** - karta pokazująca sumę wydatków i liczbę transakcji z bieżącego tygodnia
+- **Panel porad AI** - sekcja z maksymalnie trzema spersonalizowanymi poradami finansowymi
+
+## Implementacja
+
+Widok został zaimplementowany przy użyciu:
+- Flask (backend)
+- Vanilla JavaScript (bez frameworków)
+- Bootstrap (stylowanie)
+
+## Pliki zaimplementowane
+
+- `app.py` - trasa `/dashboard` aplikacji Flask
+- `templates/dashboard.html` - szablon widoku z Jinja2
+- `static/js/dashboard.js` - logika pobierania i renderowania danych
+- `routes/api.py` - endpointy API `/expenses/summary` i `/ai/tips`
+- `tests/dashboard.test.js` - testy widoku
+- `docs/dashboard.md` - szczegółowa dokumentacja dla developerów
+
+## Dostępność
+
+Widok spełnia standardy dostępności:
+- Atrybuty `aria-live` dla dynamicznie aktualizowanej zawartości
+- Właściwe oznaczenia ARIA dla komponentów ładujących
+- Fokusowalne nagłówki
+- Odpowiednia struktura semantyczna HTML
+- Opisowe etykiety dla przycisków
+
+## Testowanie
+
+Testy znajdują się w katalogu `tests/`. Do testowania używamy Cypress.
+
+Aby uruchomić testy:
+1. Uruchom aplikację w trybie testowym
+2. Otwórz stronę z parametrem `test=true`: `/dashboard?test=true`
+3. Uruchom testy: `npx cypress run`
+
+## Dokumentacja
+
+Szczegółowa dokumentacja dla developerów znajduje się w pliku [docs/dashboard.md](./docs/dashboard.md). 
+
+# Categories – zarządzanie kategoriami
+
+Widok **Categories** (`/categories`) umożliwia przeglądanie, tworzenie, edycję oraz usuwanie własnych kategorii wydatków.
+
+| Funkcja | Implementacja |
+|---------|---------------|
+| Lista kategorii | Komponent `CategoriesList` (tabela `≥ md`, lista mobile) |
+| Dodawanie/edycja | `CategoryFormModal` z walidacją (`required`, `≤30`, unikalność) |
+| Usuwanie | `DeleteCategoryConfirmDialog` (persistent) |
+
+### Uruchamianie
+
+1. Zaloguj się i przejdź do `/categories`.
+2. Kliknij "Dodaj kategorię" aby otworzyć modal tworzenia.
+3. Kliknij ikonę ołówka przy kategorii aby edytować.
+4. Kliknij ikonę kosza aby usunąć (domyślne kategorie są chronione).
+
+### Dostępność
+
+Komponenty spełniają wymogi WCAG 2.1 AA:
+
+* Fokusowalne nagłówki (`h1 tabindex="-1"`).
+* Prawidłowe role ARIA dla modalów i list.
+* Ikony posiadają ukryty tekst zastępczy (`visually-hidden`).
+
+### Testy
+
+Minimalne testy jednostkowe/Cypress zostaną dodane w kolejnych iteracjach. Do uruchomienia wszystkich testów użyj:
+
+```bash
+npm run test      # Vitest (unit)
+npx cypress run   # e2e
+``` 
