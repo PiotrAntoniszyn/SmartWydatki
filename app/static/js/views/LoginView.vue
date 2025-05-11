@@ -69,7 +69,7 @@ import { useAuth } from '../composables/useAuth';
 
 const router = useRouter();
 const auth = useAuth();
-const form = ref(null);
+const form = ref<any>(null);
 const email = ref('');
 const password = ref('');
 
@@ -86,8 +86,8 @@ const handleLogin = async () => {
   const success = await auth.login(email.value, password.value);
   
   if (success) {
-    // Navigate based on user state
-    router.push('/onboarding');
+    // After login, navigate to dashboard
+    router.push('/dashboard');
   }
 };
 </script>

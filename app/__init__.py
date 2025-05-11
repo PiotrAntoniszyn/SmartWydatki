@@ -47,10 +47,12 @@ def create_app():
     from app.routes.categories import categories_bp
     from app.routes.expenses import expenses_bp
     from app.routes.ai_tips import ai_tips_bp
+    from app.routes.auth import auth_bp
     
     app.register_blueprint(categories_bp)
     app.register_blueprint(expenses_bp)
     app.register_blueprint(ai_tips_bp)
+    app.register_blueprint(auth_bp)
     
     # Error handlers
     @app.errorhandler(400)

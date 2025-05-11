@@ -36,7 +36,8 @@ export const useApi = () => {
 
       const response = await fetch(url.toString(), {
         method: 'GET',
-        headers
+        headers,
+        credentials: 'include'
       });
 
       // Unauthorized, redirect to login
@@ -72,6 +73,7 @@ export const useApi = () => {
       const response = await fetch(endpoint, {
         method: 'POST',
         headers,
+        credentials: 'include',
         body: JSON.stringify(data)
       });
       
@@ -108,6 +110,7 @@ export const useApi = () => {
       const response = await fetch(endpoint, {
         method: 'PUT',
         headers,
+        credentials: 'include',
         body: JSON.stringify(data)
       });
       
@@ -142,7 +145,8 @@ export const useApi = () => {
 
       const response = await fetch(endpoint, {
         method: 'DELETE',
-        headers
+        headers,
+        credentials: 'include'
       });
       
       // Unauthorized, redirect to login

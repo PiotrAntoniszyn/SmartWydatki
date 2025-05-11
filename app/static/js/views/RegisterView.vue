@@ -94,7 +94,7 @@ import { useAuth } from '../composables/useAuth';
 
 const router = useRouter();
 const auth = useAuth();
-const form = ref(null);
+const form = ref<any>(null);
 const name = ref('');
 const email = ref('');
 const password = ref('');

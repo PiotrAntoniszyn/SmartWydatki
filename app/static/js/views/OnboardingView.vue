@@ -57,10 +57,12 @@ import { useRouter } from 'vue-router';
 import LoadingSpinner from '../components/LoadingSpinner.vue';
 import ErrorDialog from '../components/ErrorDialog.vue';
 import CategoriesSuggestionsList from '../components/CategoriesSuggestionsList.vue';
+import { useApi } from '../composables/useApi';
 import { useOnboardingSuggestions } from '../composables/useOnboardingSuggestions';
 
 const router = useRouter();
 const dialog = ref(true);
+const api = useApi();
 
 // Get onboarding suggestions state and methods from composable
 const {
@@ -78,10 +80,15 @@ onMounted(() => {
 });
 
 // Handle continue button click
-const handleContinue = () => {
-  // In a real implementation, we would save the selected categories
-  // to the user's profile before redirecting
-  router.push('/dashboard');
+const handleContinue = async () => {
+  // Save selected categories via API
+  try {
+    await api.post('/categories/initial', { categoryIds: selectedIds.value });
+    router.push('/dashboard');
+  } catch (err) {
+    // Display error in dialog
+    errorMessage.value = 'Nie udało się zapisać wybranych kategorii. Spróbuj ponownie.';
+  }
 };
 </script>
 

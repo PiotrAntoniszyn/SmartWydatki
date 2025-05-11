@@ -37,9 +37,7 @@ export const useOnboardingSuggestions = (): UseOnboardingSuggestions => {
     errorMessage.value = null;
     
     try {
-      const response = await api.get<CategorySuggestionDTO[]>('/categories/suggestions', {
-        onboarding: true
-      });
+      const response = await api.get<CategorySuggestionDTO[]>('/categories/initial-suggestions');
       
       suggestions.value = response.map(mapToViewModel);
       

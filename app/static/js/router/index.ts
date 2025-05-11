@@ -17,13 +17,26 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/RegisterView.vue')
   },
   {
+    path: '/reset-password',
+    name: 'ResetPassword',
+    component: () => import('../views/ResetPasswordView.vue')
+  },
+  {
+    path: '/new-password',
+    name: 'NewPassword',
+    component: () => import('../views/NewPasswordView.vue')
+  },
+  {
+    path: '/settings/account',
+    name: 'Settings',
+    component: () => import('../views/SettingsView.vue'),
+    meta: { requiresAuth: true, title: 'Ustawienia konta' }
+  },
+  {
     path: '/onboarding',
     name: 'Onboarding',
     component: () => import('../views/OnboardingView.vue'),
-    meta: {
-      requiresAuth: true,
-      title: 'Onboarding - Wybierz kategorie'
-    }
+    meta: { requiresAuth: true, title: 'Onboarding - Wybierz kategorie' }
   },
   {
     path: '/dashboard',

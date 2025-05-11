@@ -154,4 +154,30 @@ def get_category_suggestions():
             return jsonify({
                 "error": "AI service error", 
                 "message": "An error occurred while generating suggestions."
-            }), 502 
+            }), 502
+
+@categories_bp.route('/initial-suggestions', methods=['GET'])
+def get_initial_suggestions():
+    """Get up to 5 AI-powered category suggestions for onboarding."""
+    user_id = request.user_id
+    try:
+        # Fetch categories with usage counts
+        raw = category_service.get_categories_with_usage(user_id)
+        # Limit to 5 suggestions
+        items = raw[:5] if raw else []
+        # Map to Pydantic model
+        suggestions = []
+        for entry in items:
+            # entry should contain id, name, usage_count keys
+            try:
+                suggestion = CategorySuggestion.parse_obj({
+                    'id': entry.get('id'),
+                    'name': entry.get('name'),
+                    'usage_count': entry.get('usage_count')
+                })
+                suggestions.append(suggestion.dict())
+            except Exception:
+                continue
+        return jsonify(suggestions), 200
+    except Exception as e:
+        return jsonify({'error': 'Nie udało się pobrać propozycji kategorii'}), 500 

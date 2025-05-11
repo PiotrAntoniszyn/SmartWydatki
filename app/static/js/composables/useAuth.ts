@@ -39,20 +39,17 @@ export const useAuth = () => {
   const login = async (email: string, password: string): Promise<boolean> => {
     loading.value = true;
     error.value = null;
-    
     try {
-      // In a real implementation, this would call an API endpoint
-      // const response = await api.post<{ token: string }>('/auth/login', { email, password });
-      
-      // For demo purposes, we'll simulate a successful login
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Store the token
-      setToken('demo_token');
-      
-      return true;
+      const response = await api.post<{ token: string }>('/auth/login', { email, password });
+      if (response.token) {
+        setToken(response.token);
+        return true;
+      } else {
+        error.value = 'Brak tokenu w odpowiedzi';
+        return false;
+      }
     } catch (err) {
-      error.value = 'Nieprawidłowy email lub hasło';
+      error.value = typeof err === 'string' ? err : 'Nieprawidłowy email lub hasło';
       console.error('Login error:', err);
       return false;
     } finally {
@@ -63,23 +60,24 @@ export const useAuth = () => {
   /**
    * Register a new user
    */
-  const register = async (userData: { name: string; email: string; password: string }): Promise<boolean> => {
+  const register = async (userData: { name?: string; email: string; password: string; passwordConfirm?: string }): Promise<boolean> => {
     loading.value = true;
     error.value = null;
-    
     try {
-      // In a real implementation, this would call an API endpoint
-      // const response = await api.post<{ token: string }>('/auth/register', userData);
-      
-      // For demo purposes, we'll simulate a successful registration
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Store the token
-      setToken('demo_token');
-      
-      return true;
+      const response = await api.post<{ token: string }>('/auth/register', {
+        email: userData.email,
+        password: userData.password,
+        passwordConfirm: userData.passwordConfirm
+      });
+      if (response.token) {
+        setToken(response.token);
+        return true;
+      } else {
+        error.value = 'Brak tokenu w odpowiedzi';
+        return false;
+      }
     } catch (err) {
-      error.value = 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.';
+      error.value = typeof err === 'string' ? err : 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.';
       console.error('Registration error:', err);
       return false;
     } finally {
@@ -90,9 +88,15 @@ export const useAuth = () => {
   /**
    * Logout the current user
    */
-  const logout = (): void => {
-    clearToken();
-    router.push('/login');
+  const logout = async (): Promise<void> => {
+    try {
+      await api.post('/auth/logout', {});
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      clearToken();
+      router.push('/login');
+    }
   };
   
   /**
