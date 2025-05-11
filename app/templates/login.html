@@ -1,0 +1,67 @@
+{% extends 'base_non_auth.html' %}
+
+{% block title %}Logowanie – SmartWydatki{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-5">
+    <h2 class="mb-4 text-center">Logowanie</h2>
+    <form id="login-form" novalidate>
+      <!-- Email -->
+      <div class="mb-3">
+        <label for="login-email" class="form-label required">E-mail</label>
+        <input
+          type="email"
+          class="form-control"
+          id="login-email"
+          name="email"
+          placeholder="nazwa@domena.com"
+          required
+        />
+        <div class="invalid-feedback">Nieprawidłowy format e-mail</div>
+      </div>
+
+      <!-- Password -->
+      <div class="mb-3 position-relative">
+        <label for="login-password" class="form-label required">Hasło</label>
+        <div class="input-group">
+          <input
+            type="password"
+            class="form-control"
+            id="login-password"
+            name="password"
+            minlength="8"
+            required
+            aria-describedby="togglePasswordHelp"
+          />
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            id="togglePassword"
+            aria-label="Pokaż/ukryj hasło"
+          >
+            <i class="bi bi-eye" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="invalid-feedback">Hasło musi mieć co najmniej 8 znaków</div>
+      </div>
+
+      <!-- Submit -->
+      <div class="d-grid">
+        <button type="submit" class="btn btn-primary">Zaloguj się</button>
+      </div>
+
+      <!-- Links -->
+      <div class="mt-3 text-center small">
+        <a href="/password-reset" class="link-secondary">Nie pamiętasz hasła?</a>
+        <span class="mx-2">·</span>
+        <a href="/register" class="link-secondary">Nie masz konta? Zarejestruj się</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/auth/login.js"></script>
+{% endblock %} 
