@@ -1,0 +1,52 @@
+```mermaid
+journey
+    title Proces autentykacji w SmartWydatki
+    section Rejestracja nowego konta
+        Wejście na stronę rejestracji: 5: Użytkownik
+        Wypełnienie formularza rejestracji (e-mail, hasło, potwierdzenie hasła): 3: Użytkownik
+        Walidacja pól formularza: 3: System
+        Wysłanie żądania do /api/auth/register: 2: System
+        Wywołanie supabase.auth.sign_up: 1: System
+        Przekierowanie do onboardingu: 4: System
+    
+    section Onboarding
+        Pobranie sugestii kategorii z API (3-5 propozycji AI): 4: System
+        Wyświetlenie listy kategorii w CategoriesSuggestionsList: 5: System
+        Wybór od 1 do 5 kategorii: 3: Użytkownik
+        Zapisanie wybranych kategorii przez /api/categories/initial: 2: System
+        Przekierowanie do głównego dashboardu: 4: System
+    
+    section Logowanie
+        Wejście na stronę logowania: 5: Użytkownik
+        Wypełnienie formularza (e-mail, hasło): 3: Użytkownik
+        Walidacja pól formularza: 3: System
+        Wysłanie żądania do /api/auth/login: 2: System
+        Wywołanie supabase.auth.sign_in: 1: System
+        Ustawienie HTTP-only cookie z tokenem sesji: 1: System
+        Przekierowanie do dashboardu: 4: System
+    
+    section Zmiana hasła
+        Wejście do ustawień konta (/settings/account): 5: Użytkownik
+        Wypełnienie formularza (obecne hasło, nowe hasło, potwierdzenie): 3: Użytkownik
+        Walidacja pól formularza: 3: System
+        Wysłanie żądania do /api/auth/password/change: 2: System
+        Wywołanie supabase.auth.update: 1: System
+        Wyświetlenie komunikatu o sukcesie: 4: System
+    
+    section Usunięcie konta
+        Wejście do ustawień konta (/settings/account): 5: Użytkownik
+        Kliknięcie przycisku "Usuń konto": 3: Użytkownik
+        Wyświetlenie modalu potwierdzenia: 4: System
+        Potwierdzenie usunięcia konta: 2: Użytkownik
+        Wysłanie żądania do /api/auth/account (DELETE): 1: System
+        Wywołanie supabase.auth.api.delete_user: 1: System
+        Kaskadowe usunięcie danych użytkownika: 1: System
+        Wylogowanie i przekierowanie do /login: 4: System
+    
+    section Wylogowanie
+        Kliknięcie przycisku "Wyloguj" w headerze: 5: Użytkownik
+        Wysłanie żądania do /api/auth/logout: 3: System
+        Wywołanie supabase.auth.sign_out: 2: System
+        Usunięcie cookie sesji: 1: System
+        Przekierowanie do strony logowania: 4: System
+``` 

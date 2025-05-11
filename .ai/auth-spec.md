@@ -14,7 +14,7 @@ Poniższa dokumentacja opisuje architekturę frontendową i backendową oraz int
    - Stopka: prawa autorskie
 
 2. Layout auth (`BaseAuth`)
-   - Nagłówek: logo, przycisk Wyloguj, menu użytkownika
+   - Nagłówek: logo, przycisk Wyloguj w prawym górnym rogu, menu użytkownika
    - Pasek boczny (opcjonalny): linki do głównych funkcji po zalogowaniu
    - Stopka: pozostałe linki
 
@@ -23,6 +23,7 @@ Poniższa dokumentacja opisuje architekturę frontendową i backendową oraz int
 #### Strony:
 - `/register` – formularz rejestracji (pola: E-mail, Hasło, Potwierdź Hasło)
 - `/login` – formularz logowania (pola: E-mail, Hasło)
+- `/onboarding` - ekran wyboru początkowych kategorii po rejestracji
 - `/settings/account` – strona ustawień konta z formularzem zmiany hasła (Obecne Hasło, Nowe Hasło, Potwierdź Nowe Hasło) oraz przyciskiem usunięcia konta
 
 #### Komponenty formularzy (Jinja2 + Bootstrap/Tailwind + vanilla JS):
@@ -62,9 +63,10 @@ Poniższa dokumentacja opisuje architekturę frontendową i backendową oraz int
 
 ### 1.4 Główne scenariusze użytkownika
 
-- Otwieranie `/register` → wypełnienie formularza → walidacja klienta → wysłanie → obsługa błędów API → przekierowanie na `/login`
+- Otwieranie `/register` → wypełnienie formularza → walidacja klienta → wysłanie → obsługa błędów API → przekierowanie na `/onboarding`
+- Wybór kategorii w `/onboarding` → zapisanie wybranych kategorii → przekierowanie do dashboardu
 - Otwieranie `/login` → wysłanie → ustawienie ciasteczka sesji → przekierowanie do dashboardu
-- Zmiana hasła w `/settings/account` → wypełnienie pól Obecne hasło, Nowe hasło, Potwierdź nowe hasło → walidacja klienta i API → komunikat „Hasło zostało zmienione”
+- Zmiana hasła w `/settings/account` → wypełnienie pól Obecne hasło, Nowe hasło, Potwierdź nowe hasło → walidacja klienta i API → komunikat „Hasło zostało zmienione"
 - Usunięcie konta w `/settings/account` → kliknięcie `Usuń konto` → modal potwierdzenia → po potwierdzeniu usunięcie danych i przekierowanie do `/login`
 
 ---
@@ -80,12 +82,15 @@ Poniższa dokumentacja opisuje architekturę frontendową i backendową oraz int
 | POST   | `/api/auth/logout`             | Wylogowanie                              |
 | POST   | `/api/auth/password/change`    | Zmiana hasła (wymaga obecnego hasła)     |
 | DELETE | `/api/auth/account`            | Usunięcie konta i wszystkich danych (RODO)|
+| GET    | `/api/categories/suggestions`  | Pobranie sugestii kategorii dla onboardingu |
+| POST   | `/api/categories/initial`      | Zapisanie wybranych początkowych kategorii |
 
 #### Modele DTO i dane wejściowe
 
 - `AuthRegisterInput { email: string, password: string, passwordConfirm: string }`
 - `AuthLoginInput { email: string, password: string }`
 - `AuthChangePasswordInput { currentPassword: string, newPassword: string, passwordConfirm: string }`
+- `InitialCategoriesInput { categoryIds: string[] }`
 
 #### Odpowiedzi
 - Sukces: `{ status: 'ok', message?: string }`
@@ -143,11 +148,22 @@ export default defineConfig({
    - Inicjalizacja `supabase = create_client(url, key)`
 
 2. Implementacja w kontrolerach:
-   - Rejestracja: `supabase.auth.sign_up({ email, password })`
+   - Rejestracja: `supabase.auth.sign_up({ email, password })` → przekierowanie do onboardingu
    - Logowanie: `supabase.auth.sign_in({ email, password })` → ustawienie secure HTTP-only cookie z tokenem sesji
    - Wylogowanie: `supabase.auth.sign_out()` + usunięcie cookie
    - Zmiana hasła: `supabase.auth.update({ password: newPassword })` (autoryzacja na podstawie sesji), weryfikacja obecnego hasła przed wysłaniem
    - Usunięcie konta: `supabase.auth.api.delete_user(user_id)` wraz z kaskadowym usunięciem danych
+
+3. Proces onboardingu:
+   - Po rejestracji (`/api/auth/register`) użytkownik jest automatycznie przekierowywany na stronę `/onboarding`
+   - Na stronie onboardingu system pobiera z AI 3-5 propozycji kategorii (`/api/categories/suggestions`)
+   - Użytkownik musi wybrać przynajmniej jedną kategorię przed przejściem dalej
+   - Po zapisaniu wybranych kategorii (`/api/categories/initial`), użytkownik trafia do głównego dashboardu
+
+4. Zabezpieczenia i ograniczenia:
+   - Nie implementujemy logowania przez zewnętrzne serwisy (Google, GitHub, itp.) zgodnie z PRD
+   - Wszystkie endpointy aplikacji są chronione middleware sprawdzającym obecność i ważność tokenu sesji
+   - Strony aplikacji poza `/login` i `/register` są niedostępne dla niezalogowanych użytkowników
 
 ### 3.2 Bezpieczeństwo i RODO
 
