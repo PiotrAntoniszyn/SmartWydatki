@@ -69,6 +69,7 @@ W MVP nie uwzględniamy:
     - lista propozycji zawiera 3–5 kategorii sugestii AI  
     - użytkownik może wybrać przynajmniej jedną i maksymalnie pięć pozycji  
     - bez wyboru aplikacja nie pozwala przejść dalej  
+    
 
 - US-006  
   Tytuł: Otwieranie modalu dodawania wydatku  
@@ -207,11 +208,17 @@ W MVP nie uwzględniamy:
     - porady są wyświetlane w dobrze widocznym miejscu nad/obok listy  
 
 - US-025  
-  Tytuł: Bezpieczny dostęp  
-  Opis: Tylko uwierzytelnieni użytkownicy mogą przeglądać dane.  
-  Kryteria akceptacji:  
-    - próba wejścia na stronę bez logowania przekierowuje na ekran logowania  
-    - po wylogowaniu dostęp do zasobów jest zablokowany  
+- Tytuł: Bezpieczny dostęp
+- Opis: Jako użytkownik chcę mieć możliwość rejestracji i logowania się do systemu w sposób zapewniający bezpieczeństwo moich danych.
+- Kryteria akceptacji:
+  - Logowanie i rejestracja odbywają się na dedykowanych stronach.
+  - Logowanie wymaga podania adresu email i hasła.
+  - Rejestracja wymaga podania adresu email, hasła i potwierdzenia hasła.
+  - Użytkownik NIE MOŻE korzystać z aplikacji bez logowania się do systemu (US-002).
+  - Użytkownik może logować się do systemu poprzez przycisk w prawym górnym rogu.
+  - Użytkownik może się wylogować z systemu poprzez przycisk w prawym górnym rogu w głównym layoucie
+  - Nie korzystamy z zewnętrznych serwisów logowania (np. Google, GitHub).
+
 
 - US-026  
   Tytuł: Walidacja kwoty wydatku  
